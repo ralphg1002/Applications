@@ -31,7 +31,7 @@ def handleClients(conn, address):
             conn.send(bytes("#quit", "utf8"))
             conn.close()
             del clients[conn]
-            broadcast(bytes(name + " has left the Chat Room"))
+            broadcast(bytes(name + " has left the Chat Room", "utf8"))
 
 
 #Handle client connections
