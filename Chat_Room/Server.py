@@ -14,7 +14,7 @@ sock.bind((host, port))
 def handleClients(conn, address):
     name = conn.recv(1024).decode() #1024 bytes for message
     welcome = "Welcome "+ name + ". Type #quit to leave the Chat Room"
-    conn.recv(bytes(welcome, "utf8")) #*Bytes -> alternative way to encode a message
+    conn.send(bytes(welcome, "utf8")) #*Bytes -> alternative way to encode a message
 
     msg = name + " has joined the Chat Room"
     broadcast(bytes(msg, "utf8"))
@@ -39,7 +39,7 @@ def acceptClientConn():
     while True:
         clientConnection, clientAddress = sock.accept()
         print(clientAddress," Has Conencted")
-        clientConnection.send("Welcome to the Chat Room".encode('utf8')) #See alternative way above*
+        clientConnection.send("Welcome to the Chat Room. Please enter your name to continue.".encode('utf8')) #See alternative way above*
 
         #Store connected address in dictionary
         addresses[clientConnection] = clientAddress
