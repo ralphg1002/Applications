@@ -78,12 +78,3 @@ recieveThread.start()
 
 #Events and Updates of window
 mainloop()
-
-# #Assign bytes to message
-# message = sock.recv(1024)
-
-# while message:
-#     print("Message:", message.decode())
-#     message = sock.recv(1024)
-
-# sock.close()
