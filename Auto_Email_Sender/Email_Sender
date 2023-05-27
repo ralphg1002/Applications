@@ -1,0 +1,32 @@
+from tkinter import *
+import smtplib
+import re
+
+rootWin = Tk()
+rootWin.title('Email Application')
+
+#Login Window
+f1 = Frame(rootWin, width = 1000, height = 800)
+f1.pack(side = TOP)
+
+#Title
+titleLabel = Label(f1, width = 25, text = 'Enter your credentials', font = ('calibri 18 bold'))
+titleLabel.grid(row = 0, columnspan = 3, pady = 10, padx = 10)
+
+#Email
+emailLabel = Label(f1, text = 'Email')
+emailLabel.grid(row = 1, sticky = E, pady = 5, padx = 10)
+emailField = Entry(f1)
+emailField.grid(row= 1, column= 1, pady= 5)
+
+#Password
+pswdLabel = Label(f1, text = 'Password')
+pswdLabel.grid(row = 2, sticky = E, pady = 5, padx = 10)
+pswField = Entry(f1, show = '*')
+pswField.grid(row= 2, column= 1)
+
+#Login Button
+login = Button(f1, text= 'login', width= 10, bg= 'black', fg= 'white')
+login.grid(row= 3, columnspan= 3, pady= 10)
+
+mainloop()
