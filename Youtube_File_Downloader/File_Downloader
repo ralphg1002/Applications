@@ -1,0 +1,62 @@
+from pytube import YouTube
+from tkinter import filedialog
+from tkinter import ttk
+from tkinter import *
+import re
+import threading
+
+class Application:
+    
+    def __init__(self, root):
+        #Configure Window
+        self.root = root
+        self.root.grid_rowconfigure(0, weight= 2)
+        self.root.grid_columnconfigure(0, weight= 1)
+        self.root.config(bg= '#ffdddd')
+        
+        #Main/title label
+        mainLabel = Label(self.root, text= 'YouTube Download Manager', bg= '#ccffcc', fg= 'orange', font= ('Type Xero', 70))
+        mainLabel.grid(pady= (0, 10))
+
+        #Label above link entry
+        linkLabel = Label(self.root, text= 'Paste Your YouTube Video Below', font= ('Type Xero', 30))
+        linkLabel.grid(pady= (0, 20))
+
+        #Customize entry where user pastes YouTube link
+        self.youtubeLink = StringVar()
+        self.youtubeEntry = Entry(self.root, width= 70, textvariable= self.youtubeLink, font= ('Agency Fb', 25), fg= 'red')
+        self.youtubeEntry.grid(pady= (0, 15), ipady= 2)
+        #Display error message if link is invalid
+        self.entryError = Label(self.root, text= '', font= ('Concert One', 20))
+        self.entryError.grid(pady= (0, 8))
+
+        #Feature for user to choose where to download YouTube File
+        self.fileSaveLabel = Label(self.root, text= 'Choose File Location', font= ('Concert One', 30))
+        self.fileSaveLabel.grid()
+        self.fileSaveButton = Button(self.root, text= 'Open File', font=('Bell MT', 15), command= self.openFile)
+        self.fileSaveButton.grid(pady= (10, 3))
+
+        #Label that displays chosen directory to save download
+        self.fileLocationLabel = Label(self.root, text= '', font= ('Dubai', 25))
+        self.fileLocationLabel.grid()
+
+    #Method for useer to choose where to download file locally
+    def openFile(self):
+        self.folderName = filedialog.askdirectory()
+        #Validate file location selection
+        if(len(self.folderName) > 0): #If file location is selected
+            self.fileLocationLabel.config(text= self.folderName, fg= 'green')
+            return True
+        else: #If file location is not selected
+            self.fileLocationLabel.config(text= 'Please Choose a Valid File Location', fg= 'red')
+            return False
+        
+if __name__ == "__main__":
+    #Create window GUI
+    window = Tk()
+    window.title('YouTube Download Manager')
+    window.state('zoomed') #Launch window in full screen
+
+    app = Application(window)
+
+    mainloop()
