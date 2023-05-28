@@ -1,0 +1,204 @@
+from tkinter import *
+import smtplib
+import re
+
+#Method for when Login Button is pressed
+def login():
+    if validateLogin():
+        global username, password, server
+        username = str(emailField.get())
+        password = str(pswField.get())
+
+        #Unencrypted smtp server connection
+        server = smtplib.SMTP('smtp.gmail.com:587')
+        server.ehlo()
+        server.starttls() #tls secures connection
+        server.login(username, password)
+
+        f2.pack() #Display success message and logout buttons to pop-up after logging in
+        logoutButton.grid()
+        successMsg['text'] = 'Successful Login!'
+        rootWin.after(10, rootWin.grid)
+
+        f1.pack_forget() #Destory f1 (Login Window)
+        rootWin.after(10, rootWin.grid)
+
+        f3.pack() #Display all email entry fields
+        emailSent.grid_remove() #We don't want any message displayed at the moment
+        rootWin.after(10, rootWin.grid)
+
+#Method to hide frames after logging in, logging out, or sending an email
+def hideLogin():
+    f2.pack_forget()
+    f3.pack_forget()
+    rootWin.after(10, rootWin.grid)
+
+#Method to determine actions and message displayed after sending mail
+def sendMail():
+    if validateMessage():
+        emailSent.grid_remove()
+        rootWin.after(10, rootWin.grid)
+
+        receiver = str(toField.get())
+        subject = str(subjectField.get())
+        msgBody = str(msgField.get())
+
+        email = 'From: ' + username + '\n' + 'To: ' + receiver + '\n' + 'Subject: ' + subject + '\n' + msgBody
+        try:
+            server.sendmail(username, receiver, email)
+            emailSent.grid()
+            emailSent['text'] = 'Mail Sent!'
+            rootWin.after(10, emailSent.grid)
+        except Exception as e:
+            emailSent.grid()
+            emailSent['text'] = 'Error Sending Email'
+            rootWin.after(10, emailSent.grid)
+
+#Method for when Logout Button is pressed
+def logout():
+    try:
+        server.quit()
+        f3.pack_forget()
+        f2.pack()
+        successMsg.grid()
+        successMsg['text'] = 'Logged Out Successfully'
+        logoutButton.grid_remove()
+        f1.pack()
+        pswField.delete(0, END)
+        rootWin.after(10, rootWin.grid)
+    except Exception as e:
+        successMsg['text'] = 'Error Logging Out'
+
+#Method to check validity of login credentials
+def validateLogin():
+    emailText = str(emailField.get())
+    pwdText = str(pswField.get())
+    #Check if login fields are empty
+    if(emailText == '') or (pwdText == ''):
+        f2.pack()
+        successMsg.grid()
+        successMsg['text'] = 'Please Enter Your Login Credentials'
+        logoutButton.grid_remove()
+        rootWin.after(10, rootWin.grid)
+        return False
+    else:
+        EMAIL_REGEX = re.compile(r"[^@\s]+@[^@\s]+\.[a-zA-Z0-9]+$")
+        #Ensure that email address follows an email format
+        if not EMAIL_REGEX.match(emailText):
+            f2.pack()
+            successMsg.grid()
+            successMsg['text'] = 'Enter Valid Login'
+            logoutButton.grid_remove()
+            rootWin.after(10, rootWin.grid)
+            return False
+        #If email is entered properly
+        else:
+            return True
+        
+#Method to double check fields before sending an email
+def validateMessage():
+    toText = str(toField.get())
+    subText = str(subjectField.get())
+    msgText = str(msgField.get())
+    #Check if email fields are empty
+    if(toText == '') or (subText == '') or (msgText == ''):
+        emailSent.grid()
+        emailSent['text'] = 'Fill in all Fields'
+        rootWin.after(10, rootWin.grid)
+        return False
+    else:
+        EMAIL_REGEX = re.compile(r'[^@\s]+@[^@\s]+\.[a-zA-Z0-9]+$')
+        #Check if email entry in email field is valid
+        if not EMAIL_REGEX.match(toText):
+            emailSent.grid()
+            emailSent['text'] = 'Enter Valid Email Address'
+            rootWin.after(10, rootWin.grid)
+            return False
+        #Check if length of subject and/or message are at least 3 characters long
+        elif(len(subText) < 3) or (len(msgText) < 3):
+            emailSent.grid()
+            emailSent['text'] = 'Enter a Minimum of 3 Characters'
+            rootWin.after(10, rootWin.grid)
+            return False
+        #If all email fields are filled out correctly
+        else:
+            return True
+
+
+rootWin = Tk()
+rootWin.title('Email Application')
+
+#Login Window
+f1 = Frame(rootWin, width = 1000, height = 800)
+f1.pack(side = TOP)
+
+#Title for login window
+loginTitle = Label(f1, width = 25, text = 'Enter your credentials', font = ('calibri 18 bold'))
+loginTitle.grid(row = 0, columnspan = 3, pady = 10, padx = 10)
+
+#Email
+emailLabel = Label(f1, text = 'Email')
+emailLabel.grid(row = 1, sticky = E, pady = 5, padx = 10)
+emailField = Entry(f1)
+emailField.grid(row= 1, column= 1, pady= 5)
+
+#Password
+pswdLabel = Label(f1, text = 'Password')
+pswdLabel.grid(row = 2, sticky = E, pady = 5, padx = 10)
+pswField = Entry(f1, show = '*')
+pswField.grid(row= 2, column= 1)
+
+#Login Button
+loginButton = Button(f1, text= 'Login', width= 10, bg= 'black', fg= 'white', command= lambda: login())
+loginButton.grid(row= 3, columnspan= 3, pady= 10)
+
+#Email Window post login
+f2 = Frame(rootWin)
+f2.pack(side= TOP, expand= NO, fill= NONE)
+
+#Message displayed when logged in/out of email account successfuly
+successMsg = Label(f2, width= 30, bg= 'cyan', fg= 'red', text= 'Successful Login!', font = ('calibri 12 bold'))
+successMsg.grid(row= 0, column= 0, columnspan= 2, pady= 5)
+
+#Logout Button
+logoutButton = Button(f2, text= 'Logout', bg= 'black', fg= 'white', command= lambda: logout())
+logoutButton.grid(row= 3, column= 4, sticky= E, pady= 10, padx= (5,0))
+
+#Email Window with email writing and sending capabilities
+f3 = Frame(rootWin)
+f3.pack(side= TOP, expand= NO, fill= NONE)
+
+#Title for email window
+emailTitle = Label(f3, width= 20, text= 'Compose Email', font = ('calibri 18 bold'))
+emailTitle.grid(row= 0, columnspan= 3, pady= 10)
+
+#To
+toLabel = Label(f3, text= 'To')
+toLabel.grid(row= 1, sticky= E, pady= 10)
+toField = Entry(f3)
+toField.grid(row= 1, column= 1, pady= 5)
+
+#Subject
+subjectLabel = Label(f3, text= 'Subject')
+subjectLabel.grid(row= 2, sticky= E, pady= 10)
+subjectField = Entry(f3)
+subjectField.grid(row= 2, column= 1, pady= 5)
+
+#Message
+msgLabel = Label(f3, text= 'Message')
+msgLabel.grid(row= 3, sticky= E)
+msgField = Entry(f3)
+msgField.grid(row= 3, column= 1, pady= 5, rowspan= 3, ipady= 10)
+
+#Button to send mail
+sendMailButton = Button(f3, text= 'Send Mail', width= 10, bg= 'black', fg= 'white', command= lambda: sendMail)
+sendMailButton.grid(row= 6, columnspan= 3, pady= 10)
+
+#Email successfully sent message
+emailSent = Label(f3, width= 20, fg= 'white', bg= 'black', font= ('calibri 18 bold'))
+emailSent.grid(row= 7, columnspan= 3, pady= 5)
+
+#Hide frames when transitioning to and from frames
+hideLogin()
+
+rootWin.mainloop()
