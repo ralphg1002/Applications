@@ -5,7 +5,8 @@ from tkinter import *
 import re
 import threading
 
-class Application:
+#Choose File Window App
+class FileApplication:
     
     def __init__(self, root):
         #Configure Window
@@ -40,7 +41,40 @@ class Application:
         self.fileLocationLabel = Label(self.root, text= '', font= ('Dubai', 25))
         self.fileLocationLabel.grid()
 
-    #Method for useer to choose where to download file locally
+        #Feature for user to choose file download type
+        self.chooseDownload = Label(self.root, text = 'Choose the Download Type', font = ('Variety', 30))
+        self.chooseDownload.grid()
+        self.downloadChoices = [('Audio Mp3', 1), ('Video Mp4', 2)]
+        self.userChoice = StringVar()
+        self.userChoice.set(1) #By deafult set to download mp3 file
+        for type,mode in self.downloadChoices:
+            self.downloadChoice = Radiobutton(self.root, text= type, font= ('Northwest old', 15), variable= self.userChoice, value= mode)
+            self.downloadChoice.grid()
+        
+        self.downloadButton = Button(self.root, text= 'Download', width= 10, font= ('Bell MT', 15), command= self.checkVideoLink)
+        self.downloadButton.grid(pady= (30, 5))
+
+    #Check for user errors
+    def checkVideoLink(self):
+        self.matchYoutubeLink = re.match('^https://www.youtube.com/.', self.youtubeLink.get())
+        if (not self.matchYoutubeLink):
+            self.entryError.config(text= 'Invalid YouTube Video Link', fg= 'red')
+        elif (not self.openFile):
+            self.fileLocationLabel.config(text= 'Please Choose a File Location', fg= 'red')
+        elif(self.matchYoutubeLink and self.openFile):
+            self.downloadWindow()
+
+    #Launch a new download window
+    def downloadWindow(self):
+        self.newWindow = Toplevel(self.root)
+        self.root.withdraw()
+        self.newWindow.state('zoomed')
+        self.newWindow.grid_rowconfigure(0, weight= 0)
+        self.newWindow.grid_columnconfigure(0, weight= 1)
+
+        self.app = DownloadApp(self.newWindow, self.youtubeLink.get(), self.folderName, self.userChoice.get())
+
+    #Method for user to choose where to download file locally
     def openFile(self):
         self.folderName = filedialog.askdirectory()
         #Validate file location selection
@@ -50,13 +84,22 @@ class Application:
         else: #If file location is not selected
             self.fileLocationLabel.config(text= 'Please Choose a Valid File Location', fg= 'red')
             return False
-        
+
+#Second application that launches upon start of file download
+class DownloadApp:
+
+    def __init__(self, downloadWindow, youtubeLink, folderName, choice):
+        self.downloadWindow = downloadWindow
+        self.youtubeLink = youtubeLink
+        self.folderName = folderName
+        self.choice = choice
+
 if __name__ == "__main__":
     #Create window GUI
     window = Tk()
     window.title('YouTube Download Manager')
     window.state('zoomed') #Launch window in full screen
 
-    app = Application(window)
+    app = FileApplication(window)
 
     mainloop()
