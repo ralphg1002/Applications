@@ -94,6 +94,54 @@ class DownloadApp:
         self.folderName = folderName
         self.choice = choice
 
+        self.yt = YouTube(self.youtubeLink)
+        if(choice == '1'):
+            self.videoType = self.yt.streams.filter(only_audio= True).first()
+            self.maxFileSize = self.videoType.filesize
+        elif(choice == '2'):
+            self.videoType = self.yt.streams.get_highest_resolution()
+            self.maxFileSize = self.videoType.filesize
+
+        self.loadingLabel = Label(self.downloadWindow, text= 'Downloading in Progress...', font= ('Small Fonts', 40))
+        self.loadingLabel.grid(pady= (100, 0))
+
+        self.loadingPercent = Label(self.downloadWindow, text= '0', fg= 'green', font= ('Agency Fb', 40))
+        self.loadingPercent.grid(pady= (50, 0))
+
+        self.progressBar = ttk.Progressbar(self.downloadWindow, length= 500, orient= 'horizontal', mode= 'indeterminate')
+        self.progressBar.grid(pady= (50, 0))
+        self.progressBar.start()
+
+        threading.Thread(target= self.yt.register_on_progress_callback(self.showProgress)).start()
+        threading.Thread(target= self.downloadFile).start()
+
+    #Actual download of file
+    def downloadFile(self):
+        if(self.choice == '1'):
+            self.yt.streams.filter(only_audio= True).first().download(self.folderName)
+        if(self.choice == '2'):
+            self.yt.streams.get_highest_resolution().download(self.folderName)
+    
+    #Show progress of file download
+    def showProgress(self, streams= None, Chunks= None, bytesLeft= None):
+        self.percentage = float("%0.2f"% (100-(100*(bytesLeft/self.maxFileSize))))
+        if(self.percentage <= 99):
+            self.loadingPercent.config(text= self.percentage)
+        else:
+            self.progressBar.stop()
+            self.progressBar.grid_forget()
+            self.loadingLabel.grid_forget()
+
+            self.downloadFinished = Label(self.downloadWindow, text= 'Download Finished', font= ('Agency Fb', 30))
+            self.downloadFinished.grid(pady= (150, 0))
+
+            self.downloadedFileName = Label(self.downloadWindow, text= '\"' + self.yt.title + '\"', font= ('Terminal', 30))
+            self.downloadedFileName.grid(pady= (50, 0))
+
+            megaBytes = float("%0.2f"% (self.maxFileSize/1000000))
+            self.downloadSize = Label(self.downloadWindow, text= str(megaBytes) + 'megabytes', font= ('Agency Fb', 30))
+            self.downloadSize.grid(pady= (50, 0))
+
 if __name__ == "__main__":
     #Create window GUI
     window = Tk()
