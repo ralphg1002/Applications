@@ -1,1 +1,1 @@
-# Applications created using Python
+# Quick and simple applications created using Python
