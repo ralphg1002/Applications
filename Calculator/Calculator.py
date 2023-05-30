@@ -8,8 +8,8 @@ def createWindow(theme):
 
     #Layout defines the layout of the window
     layout =[
-        [sg.Text(text= 'Output', font= ('Franklin', 25), justification= 'right', expand_x= True, pad= (10, 15), right_click_menu= themeMenu, key = 'text')], #Can use sg.Push() to create an element that takes up as much spaces as possible
-        [sg.Button(button_text= 'Clear', expand_x= True), sg.Button(button_text= 'Enter', expand_x= True)],
+        [sg.Text(text= '0', font= ('Franklin', 25), justification= 'right', expand_x= True, pad= (10, 15), right_click_menu= themeMenu, key = 'text')], #Can use sg.Push() to create an element that takes up as much spaces as possible
+        [sg.Button(button_text= '^', size= btnSize), sg.Button(button_text= 'Clear', expand_x= True), sg.Button(button_text= '=', size= (9,3))],
         [sg.Button(button_text= 7, size= btnSize), sg.Button(button_text= 8, size= btnSize), sg.Button(button_text= 9, size= btnSize), sg.Button(button_text= '*', size= btnSize)],
         [sg.Button(button_text= 4, size= btnSize), sg.Button(button_text= 5, size= btnSize), sg.Button(button_text= 6, size= btnSize), sg.Button(button_text= '/', size= btnSize)],
         [sg.Button(button_text= 1, size= btnSize), sg.Button(button_text= 2, size= btnSize), sg.Button(button_text= 3, size= btnSize), sg.Button(button_text= '-', size= btnSize)],
@@ -22,7 +22,9 @@ def createWindow(theme):
 themeMenu = ['menu', ['LightGrey1', 'DarkPurple6', 'LightBlue5', 'Darkgrey2', 'Random']]
 window = createWindow('DarkBrown7')
 
+#Stores value user desires to perform calculations on
 currrentNum = []
+#Stores operations
 operation = []
 
 while True:
@@ -42,25 +44,27 @@ while True:
         window['text'].update(numString)
 
     #Buttons for selecting the operation
-    elif event in ['+', '-', '/', '*']:
+    elif event in ['+', '-', '/', '*', '^']:
+        #Handle exponents of regular math syntax with python syntax
+        if event == '^':
+            event = '**'
         operation.append(''.join(currrentNum))
         currrentNum = []
         operation.append(event)
         window['text'].update('')
 
-    #Enter button
-    elif event == 'Enter':
+    #Equal button
+    elif event == '=':
         operation.append(''.join(currrentNum))
         result = eval(''.join(operation))
-        window['text'].update(result)
+        window['text'].update(round(result, 15))
         operation = []
+        currrentNum = [str(result)]
 
     #Clear button
     elif event == 'Clear':
         currrentNum = []
         operation = []
-        window['text'].update('')
-
-
+        window['text'].update('0')
 
 window.close()
