@@ -31,7 +31,7 @@
             <a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
           {% else %}
             <a class="nav-item nav-link" id="login" href="/login">Login</a>
-            <a class="nav-item nav-link" id="signUp" href="/sign-up">Sign Up</a>\
+            <a class="nav-item nav-link" id="signUp" href="/sign-up">Sign Up</a>
           {% endif %}
         </div>
       </div>
@@ -77,6 +77,7 @@
       crossorigin="anonymous"
     ></script>
 
+    <!-- Reference index.js file stored in static folder -->
     <script 
         type="text/javascript" 
         src = '{{ url_for("static", filename= "index.js")}}'>
